@@ -1,43 +1,76 @@
-<div class="container">
-  <div class="header">
-    <h1>Catálogo de Bienes y Servicios</h1>
-    <button mat-raised-button color="primary" routerLink="/catalog/new">
-      <mat-icon>add</mat-icon>
-      Agregar Nuevo Ítem
-    </button>
-  </div>
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { CatalogService } from '../../catalog.service';
+import { switchMap } from 'rxjs/operators';
+import { of } from 'rxjs';
 
-  <mat-table [dataSource]="items$ | async" class="mat-elevation-z8">
+@Component({
+  selector: 'app-catalog-form',
+  templateUrl: './catalog-form.component.html',
+  styleUrls: ['./catalog-form.component.scss']
+})
+export class CatalogFormComponent implements OnInit {
+  itemForm!: FormGroup;
+  isEditMode = false;
+  private itemId: number | null = null;
 
-    <!-- Code Column -->
-    <ng-container matColumnDef="code">
-      <mat-header-cell *matHeaderCellDef> Código </mat-header-cell>
-      <mat-cell *matCellDef="let item"> {{item.code}} </mat-cell>
-    </ng-container>
+  constructor(
+    private fb: FormBuilder,
+    private catalogService: CatalogService,
+    private router: Router,
+    private route: ActivatedRoute,
+    private snackBar: MatSnackBar
+  ) { }
 
-    <!-- Name Column -->
-    <ng-container matColumnDef="name">
-      <mat-header-cell *matHeaderCellDef> Nombre </mat-header-cell>
-      <mat-cell *matCellDef="let item"> {{item.name}} </mat-cell>
-    </ng-container>
+  ngOnInit(): void {
+    this.initForm();
+    this.checkEditMode();
+  }
 
-    <!-- Description Column -->
-    <ng-container matColumnDef="description">
-      <mat-header-cell *matHeaderCellDef> Descripción </mat-header-cell>
-      <mat-cell *matCellDef="let item"> {{item.description}} </mat-cell>
-    </ng-container>
+  private initForm(): void {
+    this.itemForm = this.fb.group({
+      name: ['', Validators.required],
+      description: ['', Validators.required],
+      code: ['', [Validators.required, Validators.pattern('^[0-9]*$')]]
+    });
+  }
 
-    <!-- Actions Column -->
-    <ng-container matColumnDef="actions">
-        <mat-header-cell *matHeaderCellDef> Acciones </mat-header-cell>
-        <mat-cell *matCellDef="let item">
-            <button mat-icon-button color="primary" [routerLink]="['/catalog/edit', item.id]" aria-label="Editar ítem">
-                <mat-icon>edit</mat-icon>
-            </button>
-        </mat-cell>
-    </ng-container>
+  private checkEditMode(): void {
+    this.route.paramMap.pipe(
+      switchMap(params => {
+        const id = params.get('id');
+        if (id) {
+          this.isEditMode = true;
+          this.itemId = +id;
+          return this.catalogService.getItemById(this.itemId);
+        }
+        return of(null);
+      })
+    ).subscribe(item => {
+      if (item) {
+        this.itemForm.patchValue(item);
+      }
+    });
+  }
 
-    <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-    <mat-row *matRowDef="let row; columns: displayedColumns;"></mat-row>
-  </mat-table>
-</div>
+  onSubmit(): void {
+    if (this.itemForm.invalid) {
+      return;
+    }
+    const operation = this.isEditMode
+      ? this.catalogService.updateItem(this.itemId!, this.itemForm.value)
+      : this.catalogService.createItem(this.itemForm.value);
+
+    operation.subscribe({
+      next: () => {
+        this.snackBar.open('Operación exitosa', 'Cerrar', { duration: 3000 });
+        this.router.navigate(['/catalog']);
+      },
+      error: () => {
+        this.snackBar.open('Error en la operación', 'Cerrar', { duration: 3000 });
+      }
+    });
+  }
+}

@@ -1,0 +1,1 @@
+{"root":["./app.module.ts","./auth.guard.ts","./auth.service.ts","./catalog-form.component.ts","./catalog-item.model.ts","./catalog-list.component.ts","./catalog-routing.module.ts","./catalog.module.ts","./catalog.service.ts","./confirmation-dialog.component.ts","./error.interceptor.ts","./token.interceptor.ts"],"errors":true,"version":"5.9.2"}

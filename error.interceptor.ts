@@ -9,11 +9,17 @@ import {
 import { Observable, throwError } from 'rxjs';
 import { catchError } from 'rxjs/operators';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { environment } from 'src/environments/environment'; // Asumiendo una configuración de entorno
+import { AuthService } from './auth.service';
+// import { Router } from '@angular/router'; // Para redirigir
 
 @Injectable()
 export class ErrorInterceptor implements HttpInterceptor {
-
-  constructor(private snackBar: MatSnackBar) {}
+  constructor(
+    private snackBar: MatSnackBar,
+    private authService: AuthService
+    // private router: Router // Ejemplo: Inyectar Router
+  ) {}
 
   intercept(request: HttpRequest<unknown>, next: HttpHandler): Observable<HttpEvent<unknown>> {
     return next.handle(request).pipe(
@@ -31,7 +37,8 @@ export class ErrorInterceptor implements HttpInterceptor {
           switch (error.status) {
             case 401:
               errorMessage = 'No autorizado. Su sesión puede haber expirado.';
-              // Aquí se podría redirigir al login o refrescar el token.
+              // Keycloak maneja el refresh token. Si aún así falla, un logout es apropiado.
+              this.authService.logout();
               break;
             case 403:
               errorMessage = 'Acceso denegado. No tiene permisos para realizar esta acción.';
@@ -44,6 +51,13 @@ export class ErrorInterceptor implements HttpInterceptor {
               break;
           }
         }
+
+        // Log del error en la consola solo para entornos de desarrollo
+        if (!environment.production) {
+          console.error('HTTP Error Interceptado:', { error, request });
+        }
+
+        // TODO: En producción, considera enviar el error a un servicio de logging (ej. Sentry, LogRocket).
 
         this.snackBar.open(errorMessage, 'Cerrar', {
           duration: 7000, // Duración más larga para que el usuario pueda leer el error.

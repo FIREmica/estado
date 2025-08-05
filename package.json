@@ -1,6 +1,9 @@
 {
   "dependencies": {
+    "@angular/forms": "^20.1.4",
+    "@angular/material": "^20.1.4",
     "keycloak-angular": "^20.0.0",
-    "keycloak-js": "^26.2.0"
+    "keycloak-js": "^26.2.0",
+    "typescript": "^5.9.2"
   }
 }

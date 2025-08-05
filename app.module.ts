@@ -6,8 +6,8 @@ import { KeycloakAngularModule, KeycloakService } from 'keycloak-angular';
 import { AppRoutingModule } from './app-routing.module';
 import { AppComponent } from './app.component';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
-import { ErrorInterceptor } from './core/interceptors/error.interceptor';
-import { TokenInterceptor } from './core/interceptors/token.interceptor';
+import { ErrorInterceptor } from './error.interceptor';
+import { TokenInterceptor } from './token.interceptor';
 
 function initializeKeycloak(keycloak: KeycloakService) {
   return () =>
