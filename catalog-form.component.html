@@ -1,0 +1,77 @@
+import { Component, OnInit } from '@angular/core';
+import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { ActivatedRoute, Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { CatalogService } from '../../catalog.service';
+import { switchMap } from 'rxjs/operators';
+import { of } from 'rxjs';
+
+@Component({
+  selector: 'app-catalog-form',
+  templateUrl: './catalog-form.component.html',
+  styleUrls: ['./catalog-form.component.scss']
+})
+export class CatalogFormComponent implements OnInit {
+  itemForm!: FormGroup;
+  isEditMode = false;
+  private itemId: number | null = null;
+
+  constructor(
+    private fb: FormBuilder,
+    private catalogService: CatalogService,
+    private router: Router,
+    private route: ActivatedRoute,
+    private snackBar: MatSnackBar
+  ) { }
+
+  ngOnInit(): void {
+    this.initForm();
+    this.checkEditMode();
+  }
+
+  private initForm(): void {
+    this.itemForm = this.fb.group({
+      name: ['', Validators.required],
+      description: ['', Validators.required],
+      code: ['', [Validators.required, Validators.pattern('^[0-9]*$')]]
+    });
+  }
+
+  private checkEditMode(): void {
+    this.route.paramMap.pipe(
+      switchMap(params => {
+        const id = params.get('id');
+        if (id) {
+          this.isEditMode = true;
+          this.itemId = +id;
+          return this.catalogService.getItemById(this.itemId);
+        }
+        return of(null);
+      })
+    ).subscribe(item => {
+      if (item) {
+        this.itemForm.patchValue(item);
+      }
+    });
+  }
+
+  onSubmit(): void {
+    if (this.itemForm.invalid) {
+      return;
+    }
+    // Lógica para guardar o actualizar
+    const operation = this.isEditMode
+      ? this.catalogService.updateItem(this.itemId!, this.itemForm.value)
+      : this.catalogService.createItem(this.itemForm.value);
+
+    operation.subscribe(() => {
+      const message = this.isEditMode
+        ? 'Ítem actualizado correctamente'
+        : 'Ítem creado correctamente';
+      this.snackBar.open(message, 'Cerrar', {
+        duration: 3000
+      });
+      this.router.navigate(['/catalog']);
+    });
+  }
+}

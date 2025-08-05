@@ -1,0 +1,9 @@
+{
+    "recommendations": [
+        "github.copilot",
+        "ms-azuretools.vscode-docker",
+        "ms-azuretools.vscode-containers",
+        "vscjava.vscode-java-pack",
+        "ms-mssql.mssql"
+    ]
+}
