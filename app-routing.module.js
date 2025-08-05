@@ -6,28 +6,13 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
 };
 import { NgModule } from '@angular/core';
 import { RouterModule } from '@angular/router';
-import { CatalogListComponent } from './components/catalog-list/catalog-list.component';
-import { CatalogFormComponent } from './components/catalog-form/catalog-form.component';
-const routes = [
-    {
-        path: '',
-        component: CatalogListComponent
-    },
-    {
-        path: 'new',
-        component: CatalogFormComponent
-    },
-    {
-        path: 'edit/:id',
-        component: CatalogFormComponent
-    }
-];
-let CatalogRoutingModule = class CatalogRoutingModule {
+const routes = [];
+let AppRoutingModule = class AppRoutingModule {
 };
-CatalogRoutingModule = __decorate([
+AppRoutingModule = __decorate([
     NgModule({
-        imports: [RouterModule.forChild(routes)],
+        imports: [RouterModule.forRoot(routes)],
         exports: [RouterModule]
     })
-], CatalogRoutingModule);
-export { CatalogRoutingModule };
+], AppRoutingModule);
+export { AppRoutingModule };

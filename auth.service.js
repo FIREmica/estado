@@ -1,75 +1,65 @@
-"use strict";
-var __esDecorate = (this && this.__esDecorate) || function (ctor, descriptorIn, decorators, contextIn, initializers, extraInitializers) {
-    function accept(f) { if (f !== void 0 && typeof f !== "function") throw new TypeError("Function expected"); return f; }
-    var kind = contextIn.kind, key = kind === "getter" ? "get" : kind === "setter" ? "set" : "value";
-    var target = !descriptorIn && ctor ? contextIn["static"] ? ctor : ctor.prototype : null;
-    var descriptor = descriptorIn || (target ? Object.getOwnPropertyDescriptor(target, contextIn.name) : {});
-    var _, done = false;
-    for (var i = decorators.length - 1; i >= 0; i--) {
-        var context = {};
-        for (var p in contextIn) context[p] = p === "access" ? {} : contextIn[p];
-        for (var p in contextIn.access) context.access[p] = contextIn.access[p];
-        context.addInitializer = function (f) { if (done) throw new TypeError("Cannot add initializers after decoration has completed"); extraInitializers.push(accept(f || null)); };
-        var result = (0, decorators[i])(kind === "accessor" ? { get: descriptor.get, set: descriptor.set } : descriptor[key], context);
-        if (kind === "accessor") {
-            if (result === void 0) continue;
-            if (result === null || typeof result !== "object") throw new TypeError("Object expected");
-            if (_ = accept(result.get)) descriptor.get = _;
-            if (_ = accept(result.set)) descriptor.set = _;
-            if (_ = accept(result.init)) initializers.unshift(_);
-        }
-        else if (_ = accept(result)) {
-            if (kind === "field") initializers.unshift(_);
-            else descriptor[key] = _;
-        }
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+import { Injectable } from '@angular/core';
+let AuthService = class AuthService {
+    constructor(keycloakService) {
+        this.keycloakService = keycloakService;
     }
-    if (target) Object.defineProperty(target, contextIn.name, descriptor);
-    done = true;
-};
-var __runInitializers = (this && this.__runInitializers) || function (thisArg, initializers, value) {
-    var useValue = arguments.length > 2;
-    for (var i = 0; i < initializers.length; i++) {
-        value = useValue ? initializers[i].call(thisArg, value) : initializers[i].call(thisArg);
+    /**
+     * Inicia el proceso de login.
+     * Redirige al usuario a la página de login de Keycloak.
+     * @param options Opciones de login, como el URI de redirección.
+     */
+    async login(options) {
+        await this.keycloakService.login(options);
     }
-    return useValue ? value : void 0;
+    /**
+     * Cierra la sesión del usuario.
+     * @param redirectUri URI opcional para redirigir después del logout.
+     */
+    async logout(redirectUri) {
+        // Si no se provee un redirectUri, por defecto usa la página actual.
+        await this.keycloakService.logout(redirectUri || window.location.origin);
+    }
+    /**
+     * Verifica si el usuario está autenticado.
+     * @returns Una promesa que resuelve a `true` si el usuario está logueado, `false` en caso contrario.
+     */
+    async isLoggedIn() {
+        return this.keycloakService.isLoggedIn();
+    }
+    /**
+     * Carga el perfil del usuario desde Keycloak.
+     * @param forceReload Si es `true`, fuerza la recarga desde el servidor.
+     * @returns Una promesa que resuelve con el perfil del usuario.
+     */
+    loadUserProfile(forceReload = false) {
+        return this.keycloakService.loadUserProfile(forceReload);
+    }
+    /**
+     * Obtiene los roles del usuario.
+     * @returns Un array de strings con los roles del usuario.
+     */
+    getUserRoles() {
+        return this.keycloakService.getUserRoles();
+    }
+    /**
+     * Obtiene el token de autenticación.
+     * `keycloak-angular` lo añade automáticamente a las peticiones HTTP,
+     * pero puedes obtenerlo manualmente si es necesario.
+     * @returns Una promesa que resuelve con el token en formato string.
+     */
+    getToken() {
+        return this.keycloakService.getToken();
+    }
 };
-var __setFunctionName = (this && this.__setFunctionName) || function (f, name, prefix) {
-    if (typeof name === "symbol") name = name.description ? "[".concat(name.description, "]") : "";
-    return Object.defineProperty(f, "name", { configurable: true, value: prefix ? "".concat(prefix, " ", name) : name });
-};
-Object.defineProperty(exports, "__esModule", { value: true });
-exports.AuthService = void 0;
-const core_1 = require("@angular/core");
-let AuthService = (() => {
-    let _classDecorators = [(0, core_1.Injectable)({
-            providedIn: 'root',
-        })];
-    let _classDescriptor;
-    let _classExtraInitializers = [];
-    let _classThis;
-    var AuthService = _classThis = class {
-        constructor(http) {
-            this.http = http;
-            this.apiUrl = 'https://example.com/api/auth';
-        }
-        login(username, password) {
-            return this.http.post(`${this.apiUrl}/login`, { username, password });
-        }
-        logout() {
-            return this.http.post(`${this.apiUrl}/logout`, {});
-        }
-        isAuthenticated() {
-            return this.http.get(`${this.apiUrl}/isAuthenticated`);
-        }
-    };
-    __setFunctionName(_classThis, "AuthService");
-    (() => {
-        const _metadata = typeof Symbol === "function" && Symbol.metadata ? Object.create(null) : void 0;
-        __esDecorate(null, _classDescriptor = { value: _classThis }, _classDecorators, { kind: "class", name: _classThis.name, metadata: _metadata }, null, _classExtraInitializers);
-        AuthService = _classThis = _classDescriptor.value;
-        if (_metadata) Object.defineProperty(_classThis, Symbol.metadata, { enumerable: true, configurable: true, writable: true, value: _metadata });
-        __runInitializers(_classThis, _classExtraInitializers);
-    })();
-    return AuthService = _classThis;
-})();
-exports.AuthService = AuthService;
+AuthService = __decorate([
+    Injectable({
+        providedIn: 'root',
+    })
+], AuthService);
+export { AuthService };
